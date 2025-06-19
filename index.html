@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code JipaExpress</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #fff;
+            padding: 32px 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #qrcode {
+            margin: 24px 0;
+        }
+        .btns {
+            display: flex;
+            gap: 16px;
+        }
+        button {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 6px;
+            background: #1976d2;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #125ea7;
+        }
+        .error {
+            color: #c00;
+            margin-top: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>QR Code do JipaExpress</h2>
+        <div id="qrcode">Carregando QR code...</div>
+        <div class="btns">
+            <button id="btn1">Botão 1</button>
+            <button id="btn2">Botão 2</button>
+        </div>
+        <div class="error" id="error"></div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script>
+        async function fetchQrCode() {
+            try {
+                const res = await fetch('/qrcode');
+                if (!res.ok) throw new Error('QR code não disponível.');
+                const data = await res.json();
+                if (!data.qrcode) throw new Error('QR code não encontrado.');
+                document.getElementById('error').textContent = '';
+                // Renderizar QR code em um canvas
+                const qrDiv = document.getElementById('qrcode');
+                qrDiv.innerHTML = '';
+                const canvas = document.createElement('canvas');
+                qrDiv.appendChild(canvas);
+                QRCode.toCanvas(canvas, data.qrcode, { width: 256 }, function (error) {
+                    if (error) {
+                        document.getElementById('error').textContent = 'Erro ao gerar QR code.';
+                    }
+                });
+            } catch (err) {
+                document.getElementById('qrcode').innerHTML = '';
+                document.getElementById('error').textContent = err.message;
+            }
+        }
+        fetchQrCode();
+    </script>
+</body>
+</html> 
